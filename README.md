@@ -54,6 +54,47 @@ pip install -r requirements.txt
 
 - **Decision Tree Model**: Initially, a Decision Tree model is fitted to the data. The results of this model show perfect accuracy, precision, recall, and F1 scores, as seen below. This is a clear sign of overfitting, where the model performs exceptionally well on the training data but is likely to perform poorly on unseen data.
 
+![Decision Tree Results](Results/DecisionTreeonBalancedData.png)
 
+### Step 4: Cross-Validation with Random Forest
 
+- **Cross-Validation**: To address overfitting and improve performance, a Random Forest model is trained with cross-validation. This helps in ensuring the model generalizes well to unseen data.
+- **Hyperparameter Tuning**: The hyperparameters of the Random Forest model are tuned to optimize performance.
 
+### Step 5: Model Evaluation
+
+- **ROC Curves**: The model's performance is evaluated using ROC curves to visualize the trade-off between the true positive rate and false positive rate.
+
+![ROC Curve](Results/ROCforRandomForest.png)
+
+- **AUC-ROC Score**: The Area Under the ROC Curve (AUC-ROC) score is calculated to quantify the model's performance.
+
+### Step 6: Making Predictions
+
+- **Load the Model**: The trained model is saved and can be loaded for making predictions on new data.
+- **Preprocess New Data**: New data is preprocessed in the same way as the training data.
+- **Predictions**: The loaded model is used to make predictions and calculate probability scores for new data.
+
+### Results
+![Cross-Validation](Results/CrossvalidationResult.png)
+
+The Random Forest model achieved an AUC-ROC score of 0.98, demonstrating excellent performance in detecting fraudulent transactions. The model was evaluated using cross-validation and ROC curves to ensure its robustness and generalizability.
+
+- **Cross-Validation Scores**: High and consistent, indicating robust performance.
+- **Training Set Performance**: High precision, recall, F1 scores, and AUC-ROC, showing excellent fit to the training data.
+- **Validation Set Performance**: High precision, recall, F1 scores, and AUC-ROC, demonstrating good generalization.
+
+## Contributing
+
+Contributions are welcome! Please fork the repository and submit a pull request for any enhancements or bug fixes.
+
+## License
+
+This project is licensed under the MIT License.
+
+## Acknowledgments
+
+- Kaggle for providing the dataset.
+- Scikit-learn and Imbalanced-learn libraries for their machine learning tools.
+- The open-source community for their invaluable resources and contributions.
+```
