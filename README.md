@@ -42,7 +42,18 @@ pip install -r requirements.txt
 
 ### Step 1: Data Loading and Preprocessing
 
-- **Load the dataset**: The dataset is loaded into a Pandas DataFrame.
+- **Load the dataset**: The dataset is loaded into a Pandas DataFrame. It contains 31 features, including the 'Time' and 'Amount' features. The remaining 28 features are anonymized and labeled as 'V1', 'V2', ..., 'V28' to protect user confidentiality.
 - **Data scaling**: The 'Amount' column is scaled using `StandardScaler`.
 
-![Data Loading and Preprocessing](path/to/screenshot1.png)
+### Step 2: Data Balancing
+
+- **Imbalance in the dataset**: Initially, the dataset is highly imbalanced, with a very low number of fraudulent transactions compared to non-fraudulent ones.
+- **SMOTE**: The Synthetic Minority Over-sampling Technique (SMOTE) is applied to balance the dataset by generating synthetic samples for the minority class.
+
+### Step 3: Initial Model Training
+
+- **Decision Tree Model**: Initially, a Decision Tree model is fitted to the data. The results of this model show perfect accuracy, precision, recall, and F1 scores, as seen below. This is a clear sign of overfitting, where the model performs exceptionally well on the training data but is likely to perform poorly on unseen data.
+
+
+
+
