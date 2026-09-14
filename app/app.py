@@ -26,7 +26,14 @@ import preprocessing as pp  # noqa: E402
 
 DATA_DIR = ROOT_DIR / "data"
 MODELS_DIR = ROOT_DIR / "models"
+ASSETS_DIR = ROOT_DIR / "app" / "assets"
 DEFAULT_THRESHOLD = 0.12  # chosen in Stage 5
+
+# app/assets/ (committed, via src/build_deploy_assets.py) is a small,
+# self-contained bundle for cloud deployment - the full data/ and models/
+# directories are gitignored (raw CSVs + a 70MB model) and only exist
+# after running the notebooks locally. Prefer assets/ when present.
+USE_PREBUILT_ASSETS = (ASSETS_DIR / "preprocessor.pkl").exists()
 
 sns.set_style("whitegrid")
 st.set_page_config(page_title="Fraud Monitoring Dashboard", layout="wide")
@@ -38,8 +45,9 @@ st.set_page_config(page_title="Fraud Monitoring Dashboard", layout="wide")
 
 @st.cache_resource
 def load_model_and_preprocessor():
-    preprocessor = joblib.load(MODELS_DIR / "preprocessor.pkl")
-    model = joblib.load(MODELS_DIR / "random_forest.pkl")
+    source_dir = ASSETS_DIR if USE_PREBUILT_ASSETS else MODELS_DIR
+    preprocessor = joblib.load(source_dir / "preprocessor.pkl")
+    model = joblib.load(source_dir / "random_forest.pkl")
     return preprocessor, model
 
 
@@ -51,6 +59,9 @@ def get_shap_explainer():
 
 @st.cache_data
 def get_scored_validation() -> pd.DataFrame:
+    if USE_PREBUILT_ASSETS:
+        return pd.read_parquet(ASSETS_DIR / "val_scored.parquet")
+
     preprocessor, model = load_model_and_preprocessor()
     train_raw = pp.engineer_features(pp.load_raw(DATA_DIR / "fraudTrain.csv"))
     _, val_split = pp.temporal_train_val_split(train_raw, val_weeks=6)
@@ -71,14 +82,18 @@ def get_val_transformed() -> np.ndarray:
 
 @st.cache_data
 def get_monitoring_report() -> pd.DataFrame:
-    preprocessor, model = load_model_and_preprocessor()
     val_scored = get_scored_validation()
-    test_raw = pp.engineer_features(pp.load_raw(DATA_DIR / "fraudTest.csv"))
-    X_test, _ = pp.split_X_y(test_raw)
-    test_raw = test_raw.copy()
-    test_raw["risk_score"] = model.predict_proba(preprocessor.transform(X_test))[:, 1]
+
+    if USE_PREBUILT_ASSETS:
+        test_scored = pd.read_parquet(ASSETS_DIR / "test_scored.parquet")
+    else:
+        preprocessor, model = load_model_and_preprocessor()
+        test_scored = pp.engineer_features(pp.load_raw(DATA_DIR / "fraudTest.csv")).copy()
+        X_test, _ = pp.split_X_y(test_scored)
+        test_scored["risk_score"] = model.predict_proba(preprocessor.transform(X_test))[:, 1]
+
     return mon.monitor(
-        test_raw,
+        test_scored,
         y_true_col="is_fraud",
         proba_col="risk_score",
         amt_col="amt",
