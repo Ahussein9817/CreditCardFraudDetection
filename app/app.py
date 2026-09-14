@@ -240,6 +240,17 @@ def page_threshold_simulator():
 
     st.caption("Stage 5 chose 0.12 to maximize recall subject to FPR <= 0.5%. Move the slider to see the tradeoff directly.")
 
+    st.subheader("Confusion matrix")
+    fig_cm, ax_cm = plt.subplots(figsize=(4.5, 4))
+    sns.heatmap(
+        m["confusion_matrix"], annot=True, fmt="d", cmap="Blues", ax=ax_cm,
+        xticklabels=["Predicted legit", "Predicted fraud"],
+        yticklabels=["Actual legit", "Actual fraud"],
+    )
+    ax_cm.set_title(f"Threshold = {threshold:.2f}")
+    st.pyplot(fig_cm)
+    plt.close(fig_cm)
+
 
 def page_monitoring():
     st.title("Model Monitoring")
