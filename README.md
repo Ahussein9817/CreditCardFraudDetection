@@ -92,6 +92,10 @@ not a decisive win.
 > At threshold 0.12, the model captures **91.8%** of fraudulent transactions
 > while flagging only **1.02%** of legitimate transactions for review.
 
+![Confusion matrix at threshold 0.12](docs/screenshots/confusion_matrix.png)
+
+*614 true positives, 525 false positives, 55 false negatives, 110,387 true negatives — pulled live from the Threshold Simulator page of the dashboard, which redraws this at whatever threshold the slider is set to.*
+
 ## Investigator Capacity
 
 Ranking transactions by risk score (rather than a fixed threshold) concentrates
