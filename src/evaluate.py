@@ -14,15 +14,18 @@ from sklearn.metrics import (
 
 
 def fraud_metrics(y_true, y_pred, y_proba) -> dict:
-    cm = confusion_matrix(y_true, y_pred)
+    cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
     tn, fp, fn, tp = cm.ravel()
+    single_class = len(np.unique(y_true)) < 2
     fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
     return {
         "precision": precision_score(y_true, y_pred, zero_division=0),
         "recall": recall_score(y_true, y_pred, zero_division=0),
         "f1": f1_score(y_true, y_pred, zero_division=0),
-        "pr_auc": average_precision_score(y_true, y_proba),
-        "roc_auc": roc_auc_score(y_true, y_proba),
+        # AUCs are undefined when y_true has a single class (e.g. a monitoring
+        # batch with no fraud); report NaN rather than crash.
+        "pr_auc": average_precision_score(y_true, y_proba) if not single_class else np.nan,
+        "roc_auc": roc_auc_score(y_true, y_proba) if not single_class else np.nan,
         "fpr": fpr,
         "confusion_matrix": cm,
     }

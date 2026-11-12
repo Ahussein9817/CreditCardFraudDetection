@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
@@ -76,3 +77,18 @@ def test_precision_recall_at_k_reports_review_counts():
     table = ev.precision_recall_at_k(y_true, y_proba, k_fracs=(0.3,))
 
     assert table.loc["Top 30%", "n_reviewed"] == 3
+
+
+def test_fraud_metrics_single_class_batch_does_not_crash():
+    # A monitoring batch with no fraud: AUCs undefined -> NaN, rates still valid.
+    m = ev.fraud_metrics([0, 0, 0, 0], [0, 1, 0, 0], [0.1, 0.7, 0.2, 0.0])
+    assert np.isnan(m["pr_auc"]) and np.isnan(m["roc_auc"])
+    assert m["fpr"] == pytest.approx(0.25)
+    assert m["recall"] == 0.0
+
+
+def test_fraud_metrics_all_fraud_batch_does_not_crash():
+    m = ev.fraud_metrics([1, 1], [1, 0], [0.9, 0.2])
+    assert m["recall"] == pytest.approx(0.5)
+    assert m["fpr"] == 0.0
+    assert np.isnan(m["roc_auc"])

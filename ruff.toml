@@ -1,0 +1,6 @@
+line-length = 100
+extend-exclude = ["notebooks", "archive"]
+
+[lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]  # existing long lines in app/ are left as-is
